@@ -1,6 +1,7 @@
 package com.nighteye.springbootcrud.service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.nighteye.springbootcrud.model.User;
 import com.nighteye.springbootcrud.repository.UserRepository;
@@ -14,7 +15,7 @@ public class UserService {
 
     public List<User> getAllUsers()
     {
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         userRepository.findAll().forEach(user -> users.add(user));
         return users;
     }
@@ -34,7 +35,15 @@ public class UserService {
     //updating a record
     public void update(User user, int userid)
     {
-        userRepository.save(user);
+        Optional<User> userOpt = userRepository.findById(userid);
+        if(userOpt.isPresent()) {
+            User tempUser = userOpt.get();
+            tempUser.setUserId(userid);
+            tempUser.setUsername(user.getUsername());
+            tempUser.setEmail(user.getEmail());
+            tempUser.setSalary(user.getSalary());
+            userRepository.save(tempUser);
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.nighteye.springbootcrud.controller;
 import java.util.List;
+import java.util.Optional;
 
 import com.nighteye.springbootcrud.model.User;
 import com.nighteye.springbootcrud.service.UserService;
@@ -36,16 +37,19 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    private int saveUser(@RequestBody User user)
+    private String saveUser(@RequestBody User user)
     {
         userService.save(user);
-        return user.getUserId();
+        return user.toString();
     }
 
     @PutMapping("/users/{userid}")
-    private User update(@RequestBody User users, @PathVariable("userid") int userid)
+    private String update(@PathVariable("userid") int userid, @RequestBody User users)
     {
         userService.update(users, userid);
-        return users;
+        if(users!=null)
+            return users.toString();
+        else
+            return "No user with given id found!";
     }
 }

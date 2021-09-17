@@ -1,4 +1,6 @@
 package com.nighteye.springbootcrud.model;
+
+
 import javax.persistence.*;
 
 @Entity
