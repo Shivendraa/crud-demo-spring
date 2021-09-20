@@ -1,9 +1,10 @@
 package com.nighteye.springbootcrud.controller;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.nighteye.springbootcrud.model.User;
-import com.nighteye.springbootcrud.service.UserService;
+import com.nighteye.springbootcrud.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,39 +17,51 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @GetMapping("/users")
     private List<User> getAllUsers()
     {
-        return userService.getAllUsers();
+        List<User> users = new ArrayList<>();
+        userRepository.findAll().forEach(user -> users.add(user));
+        if(users.isEmpty()){
+            return users;
+        }
+        return users;
     }
 
     @GetMapping("/users/{userid}")
     private User getUsers(@PathVariable("userid") int userid)
     {
-        return userService.getUsersById(userid);
+        return userRepository.findById(userid).get();
     }
 
     @DeleteMapping("/users/{userid}")
     private void deleteUser(@PathVariable("userid") int userid)
     {
-        userService.delete(userid);
+        userRepository.deleteById(userid);
     }
 
     @PostMapping("/users")
     private String saveUser(@RequestBody User user)
     {
-        userService.save(user);
+        userRepository.save(user);
         return user.toString();
     }
 
     @PutMapping("/users/{userid}")
-    private String update(@PathVariable("userid") int userid, @RequestBody User users)
+    private String update(@PathVariable("userid") int userid, @RequestBody User user)
     {
-        userService.update(users, userid);
-        if(users!=null)
-            return users.toString();
+        Optional<User> userOpt = userRepository.findById(userid);
+        if(userOpt.isPresent()) {
+            User tempUser = userOpt.get();
+            tempUser.setUserId(userid);
+            tempUser.setUsername(user.getUsername());
+            tempUser.setEmail(user.getEmail());
+            tempUser.setSalary(user.getSalary());
+            userRepository.save(tempUser);
+            return tempUser.toString();
+        }
         else
             return "No user with given id found!";
     }
